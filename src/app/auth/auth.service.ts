@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpErrorResponse} from '@angular/common/http';
-import {BehaviorSubject, Observable, Subject, throwError} from 'rxjs';
+import {BehaviorSubject, Observable, throwError} from 'rxjs';
 import {catchError, tap} from 'rxjs/operators';
 import {User} from './user.model';
 import {Router} from '@angular/router';
@@ -20,11 +20,30 @@ export interface AuthResponseData {
 })
 export class AuthService {
 
+  constructor(private http: HttpClient,
+              private router: Router) {}
+
   user = new BehaviorSubject<User>(null);
   private tokenExpirationTimer: any;
 
-  constructor(private http: HttpClient,
-              private router: Router) {}
+  private static handleError(errorResp: HttpErrorResponse): Observable<never> {
+    let errorMessage = 'An unknown error occurred!';
+    if (!errorResp.error || !errorResp.error.error) {
+      return throwError(errorMessage);
+    }
+    switch (errorResp.error.error.message) {
+      case 'EMAIL_EXISTS':
+        errorMessage = 'This email exists already!';
+        break;
+      case 'EMAIL_NOT_FOUND':
+        errorMessage = 'This email does not exist';
+        break;
+      case 'INVALID_PASSWORD':
+        errorMessage = 'This password is not correct';
+        break;
+    }
+    return throwError(errorMessage);
+  }
 
   signup(email: string, password: string): Observable<AuthResponseData>{
     return this.http.post<AuthResponseData>(
@@ -34,7 +53,7 @@ export class AuthService {
         password,
         returnSecureToken: true
       }
-    ).pipe(catchError(this.handleError),
+    ).pipe(catchError(AuthService.handleError),
       tap(resData => {
         this.handleAuthentication(
           resData.email,
@@ -54,7 +73,7 @@ export class AuthService {
         password,
         returnSecureToken: true
       }
-    ).pipe(catchError(this.handleError),
+    ).pipe(catchError(AuthService.handleError),
       tap(resData => {
         this.handleAuthentication(
           resData.email,
@@ -119,24 +138,5 @@ export class AuthService {
     this.user.next(user);
     this.autoLogout(expiresIn * 1000);
     localStorage.setItem('userData', JSON.stringify(user));
-  }
-
-  private handleError(errorResp: HttpErrorResponse): Observable<never> {
-    let errorMessage = 'An unknown error occurred!';
-    if (!errorResp.error || !errorResp.error.error) {
-      return throwError(errorMessage);
-    }
-    switch (errorResp.error.error.message) {
-      case 'EMAIL_EXISTS':
-        errorMessage = 'This email exists already!';
-        break;
-      case 'EMAIL_NOT_FOUND':
-        errorMessage = 'This email does not exist';
-        break;
-      case 'INVALID_PASSWORD':
-        errorMessage = 'This password is not correct';
-        break;
-    }
-    return throwError(errorMessage);
   }
 }

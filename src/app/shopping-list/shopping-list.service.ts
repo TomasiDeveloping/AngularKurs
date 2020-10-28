@@ -1,4 +1,4 @@
-import {EventEmitter, Inject} from '@angular/core';
+import {Inject} from '@angular/core';
 import {Ingredient} from '../shared/ingredient.model';
 import {Subject} from 'rxjs';
 
