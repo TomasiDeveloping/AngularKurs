@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpErrorResponse} from '@angular/common/http';
-import {BehaviorSubject, Observable, throwError} from 'rxjs';
+import {Observable, throwError} from 'rxjs';
 import {catchError, tap} from 'rxjs/operators';
 import {User} from './user.model';
 import {Router} from '@angular/router';
@@ -49,25 +49,27 @@ export class AuthService {
     return throwError(errorMessage);
   }
 
-  signup(email: string, password: string): Observable<AuthResponseData>{
-    return this.http.post<AuthResponseData>(
-      'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyB8Z2nlgcJ0OPCm-A7UW6KQo67yDjt98Do',
-      {
-        email,
-        password,
-        returnSecureToken: true
-      }
-    ).pipe(catchError(AuthService.handleError),
-      tap(resData => {
-        this.handleAuthentication(
-          resData.email,
-          resData.localId,
-          resData.idToken,
-          +resData.expiresIn
-        );
-      })
-    );
-  }
+  // Not use with NgRX
+
+  // signup(email: string, password: string): Observable<AuthResponseData>{
+  //   return this.http.post<AuthResponseData>(
+  //     'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyB8Z2nlgcJ0OPCm-A7UW6KQo67yDjt98Do',
+  //     {
+  //       email,
+  //       password,
+  //       returnSecureToken: true
+  //     }
+  //   ).pipe(catchError(AuthService.handleError),
+  //     tap(resData => {
+  //       this.handleAuthentication(
+  //         resData.email,
+  //         resData.localId,
+  //         resData.idToken,
+  //         +resData.expiresIn
+  //       );
+  //     })
+  //   );
+  // }
 
   login(email: string, password: string): Observable<AuthResponseData> {
     return this.http.post<AuthResponseData>(
