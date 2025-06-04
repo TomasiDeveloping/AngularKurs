@@ -24,7 +24,7 @@
     "@angular/platform-browser-dynamic": "~10.1.5",
     "@angular/platform-server": "~10.1.5",
     "@angular/router": "~10.1.5",
-    "@nestjs/ng-universal": "^4.0.1",
+    "@nestjs/ng-universal": "^8.0.0",
     "@ngrx/effects": "^10.0.1",
     "@ngrx/store-devtools": "^3.2.4",
     "@nguniversal/express-engine": "^10.1.0",
